@@ -1,0 +1,5 @@
+.widget-g-EditorView textarea {
+    width: 100%;
+    border: none;
+    box-shadow: 0 .25em .5em currentColor;
+}

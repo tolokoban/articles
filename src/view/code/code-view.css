@@ -1,0 +1,59 @@
+.view-CodeView {
+    overflow: auto;
+    border-radius: .5rem;
+    margin: 2px;
+    max-width: calc(100vw - 1em);
+    margin: 1em 0;
+}
+
+.view-CodeView pre {
+    display: none;
+    margin: 0;
+    padding: 0;
+    font-size: 80%;
+}
+
+.view-CodeView.expanded pre {
+    display: block;
+    white-space: pre-wrap;
+}
+
+.view-CodeView pre code {
+    background: var(--theme-color-frame);
+    color: var(--theme-color-on-frame);
+    padding: 0;
+    margin: 0;
+}
+
+.view-CodeView > header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 .5em;
+    height: 2em;
+    background: var(--theme-color-primary);
+    color: var(--theme-color-on-primary);
+}
+
+.view-CodeView > header > div.label {
+    flex: 1 1 auto;
+    cursor: pointer;
+}
+
+.view-CodeView > header svg {
+    width: 1em;
+    height: 1em;
+    cursor: pointer;
+    transition: all .2s;
+    opacity: .75;
+}
+
+.view-CodeView > header svg:hover {
+    opacity: 1;
+}
+
+.view-CodeView > header svg:active {
+    color: var(--theme-color-accent);
+    opacity: 1;
+}

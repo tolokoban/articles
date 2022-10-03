@@ -1,0 +1,106 @@
+.view-ArticleView {
+    width: 100%;
+    margin: 0;
+    padding: 1rem 0;
+    height: 100%;
+    overflow: auto;
+    display: grid;
+    grid-template-columns: 1fr min(320px, 50vw) min(320px, 50vw) 1fr;
+    grid-auto-rows: min-content;
+    transition: opacity 0.2s;
+}
+
+.view-ArticleView.busy {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.view-ArticleView > * {
+    grid-column: 2/4;
+}
+
+.view-ArticleView img {
+    max-width: min(640px, 100vw);
+}
+
+.view-ArticleView *.full-width img {
+    max-width: 100vw;
+}
+
+.view-ArticleView *.left img,
+.view-ArticleView *.right img {
+    max-width: 50vw;
+}
+
+.view-ArticleView *.full-width img {
+    max-width: 100vw;
+}
+
+.view-ArticleView > *.full-width {
+    grid-column: 1/5;
+    width: 100%;
+}
+
+.view-ArticleView > *.left {
+    grid-column: 1/3;
+    place-self: flex-start center;
+}
+
+.view-ArticleView > *.right {
+    grid-column: 3/5;
+    place-self: flex-start center;
+}
+
+.view-ArticleView > *.margin-left {
+    grid-column: 1/2;
+}
+
+.view-ArticleView > *.margin-right {
+    grid-column: 4/5;
+}
+
+@media (max-width: 800px) {
+    .view-ArticleView > *.left,
+    .view-ArticleView > *.margin-left {
+        grid-column: 1/4;
+    }
+
+    .view-ArticleView > *.right,
+    .view-ArticleView > *.margin-right {
+        grid-column: 2/5;
+    }
+}
+
+.view-ArticleView table > thead {
+    background: var(--theme-color-primary);
+    color: var(--theme-color-on-primary);
+}
+
+.view-ArticleView table > tbody {
+    background: var(--theme-color-frame);
+    color: var(--theme-color-on-frame);
+}
+
+.view-ArticleView table > tbody > tr > td {
+    padding: 0 0.5em;
+}
+
+.view-ArticleView p {
+    text-align: justify;
+}
+
+
+.view-ArticleView span[data-widget] {
+    border-radius: 999vmax;
+    background-color: var(--theme-color-on-screen);
+    color: var(--theme-color-screen);
+    padding: 0 1em;
+}
+
+.view-ArticleView pre {
+    padding: .5em;
+    white-space: pre-wrap;
+    font-size: 80%;
+    background-color: var(--theme-color-frame);
+    color: var(--theme-color-on-frame);
+}
