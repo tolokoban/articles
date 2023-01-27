@@ -91,3 +91,13 @@ de ne pas mettre de crois dans la i-ème case sur sa droite.
 Ainsi, on peut dessiner les 7 cartes suivantes :
 
 @card"1223" @card"1313" @card"2231" @card"2312" @card"3122" @card"3131" @card"3333"
+
+Ces cartes ont toutes le même verso sur lequel on voit clairement où est le haut
+de la carte.
+Ensuite, chaque joueur dispose d'un cache. C'est une fourre en carton avec une
+fenêtre découpée. On mélange les 7 cartes faces cachées. Le premier joueur tire
+une carte et la met, toujours face cachée dans sa fourre (qui est retournée).
+Il la retourne discrètement pour regarder quelles sont ses cibles, puis il en
+retire la carte qu'il passe, face cachée toujours, à son voisin de gauche.
+
+@hide"1223"
