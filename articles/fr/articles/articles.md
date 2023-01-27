@@ -12,8 +12,8 @@ Le paramètre `<topic>` est déduit du hash de l'URL, comme dans les exemples su
 | Hash | Chemin |
 | ---- | ------ |
 | `#articles` | `articles/articles.md` |
-| `#foo/bar` | `foo/bar.md` |
-| `#foo/bar/joe` | `foo/bar/joe.md` |
+| `#foo/bar` | `foo/bar/bar.md` |
+| `#foo/bar/joe` | `foo/bar/joe/joe.md` |
 
 ## Images
 
