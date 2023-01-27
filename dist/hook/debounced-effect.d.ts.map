@@ -1,0 +1,1 @@
+{"version":3,"file":"debounced-effect.d.ts","sourceRoot":"","sources":["../../src/hook/debounced-effect.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,KAAK,MAAM,OAAO,CAAA;AAM9B,wBAAgB,kBAAkB,CAC9B,MAAM,EAAE,KAAK,CAAC,cAAc,EAC5B,KAAK,EAAE,MAAM,EACb,IAAI,CAAC,EAAE,KAAK,CAAC,cAAc,GAAG,SAAS,GACxC,IAAI,CAMN"}

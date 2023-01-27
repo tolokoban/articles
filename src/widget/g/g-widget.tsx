@@ -1,16 +1,12 @@
 import EditorView from "./editor"
 import { WidgetMaker } from "@/view/article/types"
+import React from "react"
 
-class TextWidget implements WidgetMaker {
-    make(name: string, data: unknown): JSX.Element {
-        if (name !== "editor")
-            return (
-                <div className="error">
-                    Unknown widget <b>{name}</b>!
-                </div>
-            )
+class TextWidget extends WidgetMaker {
+    make(name: string, data: unknown): React.ReactNode {
+        if (name === "editor") return <EditorView />
 
-        return <EditorView />
+        return super.make(name, data)
     }
 }
 

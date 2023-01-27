@@ -1,0 +1,1 @@
+{"version":3,"file":"processor.d.ts","sourceRoot":"","sources":["../../../src/view/article/processor.tsx"],"names":[],"mappings":"AAGA,OAAO,EAAE,cAAc,EAAE,WAAW,EAAE,MAAM,SAAS,CAAA;AAarD,wBAAgB,OAAO,CACnB,GAAG,EAAE,cAAc,EACnB,OAAO,EAAE,cAAc,EACvB,OAAO,EAAE;IAAE,CAAC,GAAG,EAAE,MAAM,GAAG,OAAO,CAAC;QAAE,OAAO,EAAE,WAAW,CAAA;KAAE,CAAC,CAAA;CAAE,QAKhE"}

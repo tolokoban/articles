@@ -16,7 +16,7 @@ if (typeof package.port !== "number") {
     console.log("A random port has been set for dev server:", package.port)
 }
 
-module.exports = env => {
+module.exports = (env) => {
     const isProdMode = env.WEBPACK_BUILD === true
     const isTestMode = !isProdMode
     if (isProdMode) {
@@ -51,7 +51,7 @@ module.exports = env => {
                 directory: Path.resolve(__dirname, "./public"),
             },
             client: {
-                logging: "verbose",
+                logging: "none",
                 overlay: { errors: true, warnings: false },
                 progress: true,
             },
@@ -71,7 +71,7 @@ module.exports = env => {
                 patterns: [
                     {
                         from: Path.resolve(__dirname, "public"),
-                        filter: async path => {
+                        filter: async (path) => {
                             return !path.endsWith("index.html")
                         },
                     },
@@ -164,13 +164,17 @@ module.exports = env => {
                     test: /\.css$/,
                     use: [
                         {
-                            // We will use MiniCssExtractPlugin in prod mode later.
                             loader: "style-loader",
                             options: {
                                 injectType: "styleTag",
                             },
                         },
-                        "css-loader",
+                        {
+                            loader: "css-loader",
+                            options: {
+                                modules: { auto: true },
+                            },
+                        },
                     ],
                 },
             ],

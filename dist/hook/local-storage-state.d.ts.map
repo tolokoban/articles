@@ -1,0 +1,1 @@
+{"version":3,"file":"local-storage-state.d.ts","sourceRoot":"","sources":["../../src/hook/local-storage-state.ts"],"names":[],"mappings":"AASA,wBAAgB,oBAAoB,CAAC,CAAC,EAClC,YAAY,EAAE,CAAC,EACf,UAAU,EAAE,MAAM,EAClB,gBAAgB,CAAC,EAAE,CAAC,KAAK,EAAE,CAAC,KAAK,CAAC,GACnC,CAAC,KAAK,EAAE,CAAC,EAAE,QAAQ,EAAE,CAAC,KAAK,EAAE,CAAC,KAAK,IAAI,CAAC,CAW1C"}

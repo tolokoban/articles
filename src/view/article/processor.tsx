@@ -6,6 +6,14 @@ import { createRoot } from "react-dom/client"
 import { isObject, isString } from "../../tool/validator"
 import { loadTextFromURL } from "../../tool/load-text"
 
+const DEFAULT_WIDGET_MAKER = new Promise<{ default: WidgetMaker }>(
+    (resolve) => {
+        resolve({
+            default: new WidgetMaker(),
+        })
+    }
+)
+
 export function process(
     div: HTMLDivElement,
     article: ArticleContent,
@@ -13,13 +21,13 @@ export function process(
 ) {
     processLocalImages(div, article)
     const widgetMaker = widgets[article.topic]
-    if (widgetMaker) processWidgets(div, article, widgetMaker)
+    processWidgets(div, article, widgetMaker)
 }
 
 function processWidgets(
     div: HTMLDivElement,
     article: ArticleContent,
-    widgetMaker: Promise<{ default: WidgetMaker }>
+    widgetMaker: Promise<{ default: WidgetMaker }> = DEFAULT_WIDGET_MAKER
 ) {
     const widgets = div.querySelectorAll("span[data-widget]")
     const delayedWidgets: Array<
@@ -56,10 +64,12 @@ function processWidgets(
             case "code":
                 if (!isObject(value)) break
                 if (!isString(value.src)) break
+                console.log("🚀 [processor] article, value = ", article, value) // @FIXME: Remove this line written on 2023-01-23 at 15:06
                 const src = `${article.base}/${value.src}`
                 const extension = src.split(".").pop() ?? "text"
                 loadTextFromURL(src)
                     .then((code) => {
+                        console.log("🚀 [processor] code = ", code) // @FIXME: Remove this line written on 2023-01-23 at 15:04
                         if (!code) return
 
                         widget.removeAttribute("data-widget")
@@ -67,7 +77,9 @@ function processWidgets(
                             <CodeView lang={extension} value={code} />
                         )
                     })
-                    .catch(console.error)
+                    .catch((ex) => {
+                        console.error(`Unable to load code at "${src}"!`, ex)
+                    })
                 break
             case "g":
                 if (isObject(value) && isString(value.value)) {
@@ -83,7 +95,6 @@ function processWidgets(
     }
     widgetMaker.then(({ default: maker }) => {
         for (const [container, name, data] of delayedWidgets) {
-            console.log(">>>", name)
             container.removeAttribute("data-widget")
             createRoot(container).render(maker.make(name, data))
         }

@@ -2,6 +2,7 @@ import JSON5 from "json5"
 import { ArticleContent } from "./types"
 import { isObject } from "../../tool/validator"
 import { loadTextFromURL } from "../../tool/load-text"
+import { findEndOfObject } from "./find-end-of-object"
 
 const DEFAULT_LANG = "fr"
 
@@ -31,6 +32,7 @@ async function loadArticleContentFromNetwork(
         article = await tryToLoad(topic, DEFAULT_LANG)
         if (article) return article
     }
+    console.warn(`Can't find topic "${topic}"!`)
     article = await tryToLoad("@", lang)
     if (article) return article
     if (lang !== DEFAULT_LANG) {
@@ -52,19 +54,18 @@ async function tryToLoad(
     topic: string,
     lang: string
 ): Promise<ArticleContent | undefined> {
-    const [root, ...rest] = topic.split("/")
-    const tail = rest.length > 0 ? rest.join("/") : root
+    const parts = topic.split("/")
+    const tail = parts[parts.length - 1]
+    const root = parts.join("/")
     const url = `articles/${lang}/${root}/${tail}.md`
-    const lastSlash = url.lastIndexOf("/")
-    const base = url.substring(0, lastSlash + 1)
     try {
         const content = await loadTextFromURL(url)
         if (!content) return
 
         return {
             content: parseWidgets(content),
-            topic: root,
-            base,
+            topic: tail,
+            base: `articles/${lang}/${root}/`,
             lang,
         }
     } catch (ex) {
@@ -84,19 +85,26 @@ interface Section {
     value: Record<string, unknown>
 }
 
+const RX_INLINE_WIDGET = /@([A-Z][A-Z0-9-]*)[\{"'\[]/gi
+
+/**
+ * Inline widgets start with a "@" immediatly followed by the widget
+ * name, immediatly followed by a "{".
+ */
 function parseInlineWidget(content: string): string {
     const sections: Section[] = []
-    const RX = /@([A-Z][A-Z0-9-]*)\{/gi
+    RX_INLINE_WIDGET.lastIndex = -1
     while (true) {
-        const match = RX.exec(content)
+        const match = RX_INLINE_WIDGET.exec(content)
         if (!match) break
 
         const [all, name] = match
-        const start = RX.lastIndex - all.length
-        const end = findEndOfObject(content, RX.lastIndex)
-        const value = parseJSON5(
-            content.substring(start + name.length + 1, end)
-        )
+        const start = RX_INLINE_WIDGET.lastIndex - all.length
+        const end = findEndOfObject(content, RX_INLINE_WIDGET.lastIndex - 1)
+        const paramsString = content.substring(start + name.length + 1, end)
+        console.log("🚀 [loader] paramsString = ", paramsString) // @FIXME: Remove this line written on 2023-01-23 at 16:27
+        const value = parseJSON5(paramsString)
+        console.log("🚀 [loader] value = ", value) // @FIXME: Remove this line written on 2023-01-23 at 16:17
         const section: Section = {
             start,
             end,
@@ -104,7 +112,7 @@ function parseInlineWidget(content: string): string {
             value,
         }
         sections.push(section)
-        RX.lastIndex = end
+        RX_INLINE_WIDGET.lastIndex = end
     }
     const parts: string[] = []
     let index = 0
@@ -133,8 +141,15 @@ function parseInlineWidget(content: string): string {
     return parts.join("") + content.substring(index)
 }
 
-const RX_BLOCK_WIDGET = /^```([a-z][a-z0-9-]*)([^a-z0-9-].*)?$/gi
+const RX_BLOCK_WIDGET = /^```([a-z][a-z0-9-]*)(\{.*\})?$/gi
 
+/**
+ * Block widgets are surrounded by triple back ticks.
+ * They will be replaced by a `<span>` element with a
+ * `data-widget` attribute holding ne name of the widget.
+ * The span's content will be a Base64 stringfigication
+ * of the params.
+ */
 function parseBlockWidget(content: string): string {
     const lines: string[] = []
     let inCode = false
@@ -172,52 +187,6 @@ function parseBlockWidget(content: string): string {
     return lines.join("\n")
 }
 
-function findEndOfObject(content: string, lastIndex: number) {
-    let depth = 0
-    let mode:
-        | "default"
-        | "single-quote"
-        | "double-quote"
-        | "single-quote-escape"
-        | "double-quote-escape" = "default"
-    for (let i = lastIndex; i < content.length; i++) {
-        const c = content.charAt(i)
-        switch (mode) {
-            case "single-quote":
-                if (c === "'") mode = "default"
-                else if (c === "\\") mode = "single-quote-escape"
-                break
-            case "single-quote-escape":
-                mode = "default"
-                break
-            case "double-quote":
-                if (c === '"') mode = "default"
-                else if (c === "\\") mode = "double-quote-escape"
-                break
-            case "double-quote-escape":
-                mode = "default"
-                break
-            default:
-                switch (c) {
-                    case "'":
-                        mode = "single-quote"
-                        break
-                    case '"':
-                        mode = "double-quote"
-                        break
-                    case "{":
-                        depth++
-                        break
-                    case "}":
-                        if (depth === 0) return i + 1
-                        depth--
-                        break
-                }
-        }
-    }
-    return content.length - 1
-}
-
 function parseJSON5(text: string) {
     try {
         return JSON5.parse(text)
@@ -228,7 +197,9 @@ function parseJSON5(text: string) {
     }
 }
 
-function parseAtribs(text: string): Record<string, unknown> {
+function parseAtribs(text?: string): Record<string, unknown> {
+    if (!text) return {}
+
     try {
         const data = JSON5.parse(text)
         if (!isObject(data))

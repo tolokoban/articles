@@ -6,17 +6,16 @@
         "composite": false,
         "declaration": true,
         "declarationMap": true,
-        "diagnostics": true,
+        "diagnostics": false,
         "downlevelIteration": true,
         "esModuleInterop": true,
         "extendedDiagnostics": false,
         "incremental": false,
-        "isolatedModules": false,
         "jsx": "react-jsx",
         "lib": ["dom", "dom.iterable", "es6"],
         "module": "esnext",
         "moduleResolution": "node",
-        "noImplicitAny": true,
+        "noImplicitAny": false,
         "noImplicitReturns": false,
         "noImplicitThis": true,
         "outDir": "./dist/",
@@ -24,11 +23,14 @@
             "@/*": ["*"],
             "*": ["src/*", "node_modules/*"]
         },
-        "removeComments": false,
+        "preserveWatchOutput": false,
+        "removeComments": true,
         "resolveJsonModule": true,
+        "skipLibCheck": true,
         "sourceMap": true,
-        "strict": true,
+        "strict": false,
         "strictNullChecks": true,
+        "strictPropertyInitialization": true,
         "target": "es5"
     },
     "output": ["./dist"],
@@ -41,14 +43,13 @@
         "./src/**/*.png",
         "./src/**/*.jpg",
         "./src/**/*.jpeg",
-        "./src/**/*.gif",
-        "./src/**/*.webp"
+        "./src/**/*.gif"
     ],
     "exclude": [
         "node_modules/",
         "doc/",
         "**/*.spec.*",
         "**/*.test.*",
-        "**/*.SKIP.*"
+        "**/*_SKIP_*"
     ]
 }

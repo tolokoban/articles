@@ -1,0 +1,2 @@
+export declare function useLocalStorageState<T>(defaultValue: T, storageKey: string, initialTransform?: (value: T) => T): [value: T, setValue: (value: T) => void];
+//# sourceMappingURL=local-storage-state.d.ts.map

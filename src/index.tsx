@@ -14,6 +14,7 @@ function start() {
             <ArticleView
                 widgets={{
                     g: import("./widget/g"),
+                    "balanced-targets": import("./widget/balanced-targets"),
                 }}
             />
         </React.StrictMode>
