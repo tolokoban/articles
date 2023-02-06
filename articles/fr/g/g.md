@@ -14,6 +14,8 @@ suivie par une série de chiffres et/ou une série d'apostrophes.
 * `{ABC}` : afficher les points.
 * `@ C 2.56` : tracer un cercle de centre `C` et de rayon `2.56`.
 * `@ C M` : tracer une cercle de centre `C` passant par `M`.
+* `~[ABDEF]` : Courbe de Bézier quadratique passant par A, D et F, avec les points de contrôle B et E.
+* `~(ABCD)` : Courbe de Bézier cubique passant par A et D, avec les points de contrôle B et C.
 * `% 3` : dorénavant, les traits ont une épaisseur de 3.
 * `#02` : définit la couleur du trait (`0`) et du remplissage (`2`).
 
