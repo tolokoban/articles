@@ -85,6 +85,39 @@ function paint(canvas: HTMLCanvasElement, scanner: Scanner) {
         ctx.lineWidth = shape.thickness
         ctx.beginPath()
         switch (shape.type) {
+            case "bezier-cubic":
+                const [bcx, bcy] = shape.start
+                ctx.moveTo(toX(bcx), toY(bcy))
+                for (let i = 0; i < shape.points.length; i += 3) {
+                    const [cpx1c, cpy1c] = shape.points[i]
+                    const [cpx2c, cpy2c] = shape.points[i + 1]
+                    const [xc, yc] = shape.points[i + 2]
+                    ctx.bezierCurveTo(
+                        toX(cpx1c),
+                        toY(cpy1c),
+                        toX(cpx2c),
+                        toY(cpy2c),
+                        toX(xc),
+                        toY(yc)
+                    )
+                }
+                break
+            case "bezier-quadratic":
+                const [bqx, bqy] = shape.start
+                ctx.moveTo(toX(bqx), toY(bqy))
+                for (let i = 0; i < shape.points.length; i += 2) {
+                    const [cpxq, cpyq] = shape.points[i]
+                    const [xq, yq] = shape.points[i + 1]
+                    ctx.bezierCurveTo(
+                        toX(cpxq),
+                        toY(cpyq),
+                        toX(cpxq),
+                        toY(cpyq),
+                        toX(xq),
+                        toY(yq)
+                    )
+                }
+                break
             case "polyline":
                 const [x, y] = shape.start
                 ctx.moveTo(toX(x), toY(y))

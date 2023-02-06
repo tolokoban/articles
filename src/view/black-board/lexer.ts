@@ -11,6 +11,7 @@ const TOKENS: { [key: string]: RegExp } = {
     CLOSE_CUR: /^\}/,
     COLOR: /^#[0-9A-Za-z][0-9A-Za-z]/,
     PIPE: /^\|/,
+    TILDA: /^~/,
     AT: /^@/,
     PERCENT: /^%/,
     DOLLAR: /^\$/,
@@ -29,6 +30,7 @@ export type TokenName =
     | "CLOSE_CUR"
     | "COLOR"
     | "PIPE"
+    | "TILDA"
     | "AT"
     | "PERCENT"
     | "DOLLAR"

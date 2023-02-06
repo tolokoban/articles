@@ -25,7 +25,19 @@ export interface Circle extends StylesShape {
     radius: number
 }
 
-export type Shape = Polyline | Circle
+export interface BezierQuadratic extends StylesShape {
+    type: "bezier-quadratic"
+    start: [x: number, y: number]
+    points: Array<[x: number, y: number]>
+}
+
+export interface BezierCubic extends StylesShape {
+    type: "bezier-cubic"
+    start: [x: number, y: number]
+    points: Array<[x: number, y: number]>
+}
+
+export type Shape = Polyline | Circle | BezierCubic | BezierQuadratic
 
 const COLORS = {
     "0": "none",
@@ -67,6 +79,7 @@ export default class Scanner {
             this.parsePointDef,
             this.parseColor,
             this.parseCircle,
+            this.parseBezier,
             this.parseThickness,
         ]
         while (true) {
@@ -207,6 +220,66 @@ export default class Scanner {
                 this.error(
                     token.pos,
                     `Définition erronée pour le polygone !\n${ex}`
+                )
+            )
+        }
+    }
+
+    private readonly parseBezier = (token: Token): boolean => {
+        if (token.name !== "TILDA") return false
+
+        const tknOpen = this.next("OPEN_PAR", "OPEN_BRA")
+        try {
+            if (tknOpen.name === "OPEN_PAR") {
+                const poly: BezierCubic = {
+                    type: "bezier-cubic",
+                    start: [0, 0],
+                    points: [],
+                    ...this.style,
+                }
+                let first = true
+                while (true) {
+                    const tkn = this.next("NAME", "CLOSE_PAR")
+                    if (tkn.name === "CLOSE_PAR") break
+
+                    const { x, y } = this.getPoint(tkn.value)
+                    if (first) {
+                        first = false
+                        poly.start = [x, y]
+                    } else {
+                        poly.points.push([x, y])
+                    }
+                }
+                this.shapes.push(poly)
+                return true
+            } else {
+                const poly: BezierQuadratic = {
+                    type: "bezier-quadratic",
+                    start: [0, 0],
+                    points: [],
+                    ...this.style,
+                }
+                let first = true
+                while (true) {
+                    const tkn = this.next("NAME", "CLOSE_BRA")
+                    if (tkn.name === "CLOSE_BRA") break
+
+                    const { x, y } = this.getPoint(tkn.value)
+                    if (first) {
+                        first = false
+                        poly.start = [x, y]
+                    } else {
+                        poly.points.push([x, y])
+                    }
+                }
+                this.shapes.push(poly)
+                return true
+            }
+        } catch (ex) {
+            throw Error(
+                this.error(
+                    token.pos,
+                    `Définition erronée pour la courbe de Bézier !\n${ex}`
                 )
             )
         }
