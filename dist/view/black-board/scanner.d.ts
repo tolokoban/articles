@@ -18,7 +18,10 @@ export interface Polyline extends StylesShape {
 export interface Circle extends StylesShape {
     type: "circle";
     center: [x: number, y: number];
-    radius: number;
+    radiusX: number;
+    radiusY: number;
+    start: number;
+    end: number;
 }
 export interface BezierQuadratic extends StylesShape {
     type: "bezier-quadratic";
@@ -40,6 +43,7 @@ export default class Scanner {
     private stroke;
     private fill;
     private thickness;
+    private pseudoPointCounter;
     constructor(code: string, tokens: Token[]);
     get points(): Point[];
     private get style();
@@ -55,6 +59,7 @@ export default class Scanner {
     private readonly parseThickness;
     private test;
     private next;
+    private skip;
     private back;
 }
 export {};

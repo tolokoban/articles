@@ -8,6 +8,7 @@
     --theme-color-screen: #ddd;
     --theme-color-on-screen: #000;
     --theme-color-primary: #2e748c;
+    --theme-color-primary-dark: #194250;
     --theme-color-on-primary: #fff;
     --theme-color-accent: #f80;
     --theme-color-on-accent: #000;
@@ -61,6 +62,6 @@ div.error {
     background-color: var(--theme-color-error);
     color: var(--theme-color-on-error);
     padding: 1em;
-    box-shadow: 0 0 .1em .1em var(--theme-color-on-error);
+    box-shadow: 0 0 0.1em 0.1em var(--theme-color-on-error);
     margin: 1em;
 }

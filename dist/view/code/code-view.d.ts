@@ -4,6 +4,7 @@ import "highlight.js/styles/github.css";
 export interface CodeViewProps {
     className?: string;
     label?: string;
+    align?: string;
     expanded?: boolean;
     region?: string;
     value: string;
