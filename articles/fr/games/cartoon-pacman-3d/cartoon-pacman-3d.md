@@ -23,22 +23,34 @@ On va donc commencer par programmer un carré à plat sur le sol avec une camér
 
 On définit notre caméra par le point qu'elle vise (__target__),
 la distance à laquelle se trouve la caméra et deux angles qu'on appellera
-__longitude__ et __latitude__.
+__longitude__ (orange) et __latitude__ (bleu).
 
-```g
-O(0,0) X(1,0) Y(0,0.38) Z(0,1)
-A(1,0.5) B(-1,0.5)
-A2(1,1.35) B2(-1,1.35)
-A'(1,-0.5) B'(-1,-0.5)
-I'(-1,0)
-M(0.82,0.6)
-#39 %2
-{OXYZM}
-~(I'BAXA'B'I')
-#30
-~(XA2B2I')
-#10 %1
-[OX][OY]
-#20 %2
-[OM]
+```g{align:"left"}
+O(0,0)
+M(O 1 °120)
+H(O 1/0.00001 °120)
+Z(0,1)
+Y(O 1 / 0.5 °60)
+X(O 1 / 0.5 °-30)
+{OMXYZH}
+# 70 %2
+@ O 1 / 0.5
+@ O 1;180,360
+# 10 %1
+[OX][OY][OZ]
+# 10 %3 [MO] %1 [MHO]
+# 20 %2 @ O 1 ; 180 -120
+# 30 %2 @ O 0.5 / 0.25 ; 180,30
 ```
+
+Pour trouver les coordonnées de `M`, on commence par calculer celles de `H`.
+Si on suppose que `|OM| = 1`, alors on a `|OH| = cos(latitude)`. Et les coordonnées de `H` sont :
+
+* `Hx = cos(latitude) * cos(longitude)`
+* `Hy = cos(latitude) * sin(longitude)`
+
+Et puisque `|HM| = sin(latitude)`, alors les coordonnées de la caméra (`M`) sont :
+
+* `x = cos(latitude) * cos(longitude)`
+* `y = cos(latitude) * sin(longitude)`
+* `z = sin(latitude)`
