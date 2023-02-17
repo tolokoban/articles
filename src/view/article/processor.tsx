@@ -56,6 +56,9 @@ function processWidgets(
                         <CodeView
                             lang={name}
                             value={value.value}
+                            align={
+                                isString(value.align) ? value.align : undefined
+                            }
                             label={value.label as string | undefined}
                         />
                     )
@@ -85,7 +88,12 @@ function processWidgets(
                 if (isObject(value) && isString(value.value)) {
                     widget.removeAttribute("data-widget")
                     createRoot(widget).render(
-                        <BlackBoardView children={value.value} />
+                        <BlackBoardView
+                            children={value.value}
+                            align={
+                                isString(value.align) ? value.align : undefined
+                            }
+                        />
                     )
                 }
                 break

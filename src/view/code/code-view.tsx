@@ -21,6 +21,11 @@ Highlight.registerLanguage("md", markdown)
 export interface CodeViewProps {
     className?: string
     label?: string
+    /**
+     * * `left`: display in left margin.
+     * * `right`: display in right margin.
+     */
+    align?: string
     expanded?: boolean
     /**
      * There are special comments that define regions in the code.

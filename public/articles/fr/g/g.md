@@ -13,7 +13,9 @@ suivie par une série de chiffres et/ou une série d'apostrophes.
 * `[ABCD]` : tracer un polygône.
 * `{ABC}` : afficher les points.
 * `@ C 2.56` : tracer un cercle de centre `C` et de rayon `2.56`.
-* `@ C M` : tracer une cercle de centre `C` passant par `M`.
+* `@ C M` : tracer un cercle de centre `C` passant par `M`.
+* `@ C 12 / 5.22` : tracer une ellipse de centre `C` de rayon horizontal `12` et vertical `5.22`.
+* `@ C M ; 30,120` : tracer un arc de cercle de centre `C` passant par `M` partant de l'angle `30°` jusqu'à `120°`.
 * `~[ABDEF]` : Courbe de Bézier quadratique passant par A, D et F, avec les points de contrôle B et E.
 * `~(ABCD)` : Courbe de Bézier cubique passant par A et D, avec les points de contrôle B et C.
 * `% 3` : dorénavant, les traits ont une épaisseur de 3.

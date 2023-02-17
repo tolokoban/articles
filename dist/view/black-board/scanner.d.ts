@@ -20,7 +20,17 @@ export interface Circle extends StylesShape {
     center: [x: number, y: number];
     radius: number;
 }
-export type Shape = Polyline | Circle;
+export interface BezierQuadratic extends StylesShape {
+    type: "bezier-quadratic";
+    start: [x: number, y: number];
+    points: Array<[x: number, y: number]>;
+}
+export interface BezierCubic extends StylesShape {
+    type: "bezier-cubic";
+    start: [x: number, y: number];
+    points: Array<[x: number, y: number]>;
+}
+export type Shape = Polyline | Circle | BezierCubic | BezierQuadratic;
 export default class Scanner {
     private readonly code;
     private readonly tokens;
@@ -37,6 +47,7 @@ export default class Scanner {
     private getPoint;
     private readonly parsePointDef;
     private readonly parsePoly;
+    private readonly parseBezier;
     private readonly parseLine;
     private readonly parsePlot;
     private readonly parseCircle;

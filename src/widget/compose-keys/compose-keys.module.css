@@ -1,0 +1,11 @@
+.ComposeKeys details a {
+    display: inline grid;
+    margin: 2px;
+    border-radius: 50%;
+    font-size: 2rem;
+    width: 3rem;
+    height: 3rem;
+    place-content: center;
+    background-color: var(--theme-color-primary);
+    color: var(--theme-color-on-primary);
+}

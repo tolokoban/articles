@@ -34,7 +34,7 @@
         "target": "es5"
     },
     "output": ["./dist"],
-    "files": ["src/index.tsx"],
+    "files": ["src/index.tsx", "src/tgd2/calc/generic-vector.ts"],
     "include": [
         "./src/**/*.ts",
         "./src/**/*.tsx",

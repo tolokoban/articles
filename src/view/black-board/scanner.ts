@@ -22,7 +22,10 @@ export interface Polyline extends StylesShape {
 export interface Circle extends StylesShape {
     type: "circle"
     center: [x: number, y: number]
-    radius: number
+    radiusX: number
+    radiusY: number
+    start: number
+    end: number
 }
 
 export interface BezierQuadratic extends StylesShape {
@@ -67,6 +70,7 @@ export default class Scanner {
     private stroke = COLORS["1"]
     private fill = COLORS["1"]
     private thickness = 1
+    private pseudoPointCounter = 0
 
     constructor(
         private readonly code: string,
@@ -93,7 +97,17 @@ export default class Scanner {
                     break
                 }
             }
-            if (!found) throw Error(this.error(token.pos, "Code non reconnu !"))
+            if (!found) {
+                console.error("code:", code)
+                console.error("token:", token)
+                console.error("tokens:", this.tokens)
+                throw Error(
+                    this.error(
+                        token.pos,
+                        `Code non reconnu ! Debut d'instruction attendue.`
+                    )
+                )
+            }
         }
     }
 
@@ -110,19 +124,19 @@ export default class Scanner {
     }
 
     private error(pos: number, message: string) {
-        const before = this.code.substring(0, pos)
-        const after = this.code.substring(pos)
-        const prevLineBreak = before.lastIndexOf("\n")
-        const nextLineBreak = before.indexOf("\n")
-        const start = prevLineBreak === -1 ? 0 : prevLineBreak
-        const end = nextLineBreak === -1 ? this.code.length : nextLineBreak
-        let current = this.code.substring(start, end)
-        let index = pos - start
-        while (index > 30) {
-            current = current.substring(10)
-            index -= 10
+        const lines = this.code.split("\n")
+        const output: string[] = []
+        let index = 0
+        let cursor = pos
+        for (const line of lines) {
+            const size = line.length + 1
+            index += size
+            output.push(line)
+            if (index >= pos) break
+
+            cursor -= size
         }
-        return `${current}\n${spc(index)}^\n${message}`
+        return `${output.join("\n")}\n${spc(cursor)}^\n${message}`
     }
 
     private getPoint(name: string): Point {
@@ -140,17 +154,47 @@ export default class Scanner {
             const tknOpen = this.next("OPEN_PAR", "OPEN_BRA")
             switch (tknOpen.name) {
                 case "OPEN_PAR":
-                    const tknX = this.next("NUMBER")
-                    const tknY = this.next("NUMBER")
-                    this.next("CLOSE_PAR")
+                    const tkn = this.next("NUMBER", "NAME")
+                    if (tkn.name === "NUMBER") {
+                        const tknX = tkn
+                        const tknY = this.next("NUMBER")
+                        this.next("CLOSE_PAR")
+                        this.pointsMap[name] = {
+                            name,
+                            x: parseFloat(tknX.value),
+                            y: parseFloat(tknY.value),
+                            visible: false,
+                        }
+                        return true
+                    }
+                    const point = this.getPoint(tkn.value)
+                    const rx = parseFloat(this.next("NUMBER").value)
+                    let ry = 0
+                    this.test(() => {
+                        this.next("DIVIDE")
+                        ry = parseFloat(this.next("NUMBER").value)
+                    })
+                    if (ry <= 0) ry = rx
+                    this.next("DEG")
+                    const ang =
+                        (Math.PI * parseFloat(this.next("NUMBER").value)) / 180
                     this.pointsMap[name] = {
                         name,
-                        x: parseFloat(tknX.value),
-                        y: parseFloat(tknY.value),
                         visible: false,
+                        x: point.x + rx * Math.cos(ang),
+                        y: point.y + ry * Math.sin(ang),
                     }
+                    console.log("🚀 [scanner] rx, ry, ang = ", rx, ry, ang) // @FIXME: Remove this line written on 2023-02-13 at 16:13
+                    console.log(
+                        "🚀 [scanner] this.pointsMap = ",
+                        this.pointsMap
+                    ) // @FIXME: Remove this line written on 2023-02-13 at 16:12
+                    this.next("CLOSE_PAR")
                     return true
                 case "OPEN_BRA":
+                    /**
+                     * Barycenter
+                     */
                     let count = 0
                     let x = 0
                     let y = 0
@@ -356,7 +400,10 @@ export default class Scanner {
             const circle: Circle = {
                 type: "circle",
                 center: [0, 0],
-                radius: 1,
+                radiusX: 1,
+                radiusY: 0,
+                start: 0,
+                end: 360,
                 ...this.style,
             }
             const center = this.getPoint(this.next("NAME").value)
@@ -366,12 +413,53 @@ export default class Scanner {
                     const passBy = this.getPoint(this.next("NAME").value)
                     const x = passBy.x - center.x
                     const y = passBy.y - center.y
-                    circle.radius = Math.sqrt(x * x + y * y)
+                    circle.radiusX = Math.sqrt(x * x + y * y)
                 })
             ) {
-                circle.radius = parseFloat(this.next("NUMBER").value)
+                circle.radiusX = parseFloat(this.next("NUMBER").value)
+                this.test(() => {
+                    this.next("DIVIDE")
+                    circle.radiusY = parseFloat(this.next("NUMBER").value)
+                })
             }
+            this.test(() => {
+                this.next("SEMICOLON")
+                const startDeg = parseFloat(this.next("NUMBER").value)
+                circle.start = (Math.PI * startDeg) / 180
+                const endDeg = parseFloat(this.next("NUMBER").value)
+                circle.end = (Math.PI * endDeg) / 180
+            })
+            if (circle.radiusY <= 0) circle.radiusY = circle.radiusX
             this.shapes.push(circle)
+            /**
+             * We add pseudo points to make space around the center of this circle.
+             * If we don't, the scaling could put the circle outside the viewport.
+             */
+            const [cx, cy] = circle.center
+            this.pointsMap[`pseudo-${this.pseudoPointCounter++}`] = {
+                name: "",
+                visible: false,
+                x: cx + circle.radiusX,
+                y: cy,
+            }
+            this.pointsMap[`pseudo-${this.pseudoPointCounter++}`] = {
+                name: "",
+                visible: false,
+                x: cx - circle.radiusX,
+                y: cy,
+            }
+            this.pointsMap[`pseudo-${this.pseudoPointCounter++}`] = {
+                name: "",
+                visible: false,
+                x: cx,
+                y: cy + circle.radiusY,
+            }
+            this.pointsMap[`pseudo-${this.pseudoPointCounter++}`] = {
+                name: "",
+                visible: false,
+                x: cx,
+                y: cy - circle.radiusY,
+            }
             return true
         } catch (ex) {
             throw Error(
@@ -386,8 +474,9 @@ export default class Scanner {
     private readonly parseColor = (token: Token): boolean => {
         if (token.name !== "COLOR") return false
 
-        const stroke = (token.value.charAt(1) ?? "0") as keyof typeof COLORS
-        const fill = (token.value.charAt(2) ?? "0") as keyof typeof COLORS
+        const tail = token.value.substring(1).trim()
+        const stroke = (tail.charAt(0) ?? "0") as keyof typeof COLORS
+        const fill = (tail.charAt(1) ?? "0") as keyof typeof COLORS
         this.stroke = COLORS[stroke] ?? "none"
         this.fill = COLORS[fill] ?? "none"
         return true
@@ -400,6 +489,11 @@ export default class Scanner {
         return true
     }
 
+    /**
+     * Test a bunch of actions and return `true` if no exception has
+     * been raised.
+     * Otherwise, return `false` and rollback the cursor.
+     */
     private test(...actions: Array<() => void>): boolean {
         const savedTokenIndex = this.tokenIndex
         for (const action of actions) {
@@ -414,7 +508,7 @@ export default class Scanner {
         return false
     }
 
-    private next(...expected: string[]): Token {
+    private next(...expected: TokenName[]): Token {
         const token = this.tokens[this.tokenIndex++]
         if (expected.length === 0) return token ?? { name: "END", value: "" }
 
@@ -425,6 +519,15 @@ export default class Scanner {
                     .join(" ou ")} mais reçu "${token?.name}" !`
             )
         return token
+    }
+
+    private skip(...expected: TokenName[]): boolean {
+        try {
+            this.next(...expected)
+            return true
+        } catch (ex) {
+            return false
+        }
     }
 
     private back(steps = 1) {

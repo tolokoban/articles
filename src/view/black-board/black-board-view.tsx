@@ -6,28 +6,40 @@ import "./black-board-view.css"
 export interface BlackBoardViewProps {
     className?: string
     children: string | string[]
+    align?: string
     onError?(error: string): void
 }
 
 export default function BlackBoardView(props: BlackBoardViewProps) {
     const [fullscreen, setFullscreen] = React.useState(false)
     const refCanvas = React.useRef<HTMLCanvasElement | null>(null)
+    const [error, setError] = React.useState("")
     React.useEffect(() => {
         const canvas = refCanvas.current
         if (!canvas) return
 
         const handler = () =>
-            paintCanvas(
-                canvas,
-                sanitizeChildren(props.children),
-                props.onError ?? console.error
-            )
+            paintCanvas(canvas, sanitizeChildren(props.children), (err) => {
+                const log = props.onError ?? console.error
+                log(err)
+                setError(err)
+            })
         handler()
         const watcher = new ResizeObserver(handler)
         watcher.observe(canvas)
         return () => watcher.unobserve(canvas)
     }, [props.children])
-    return (
+    return error ? (
+        <pre
+            style={{
+                backgroundColor: "#b10",
+                color: "#eeee",
+                whiteSpace: "pre-wrap",
+            }}
+        >
+            {error}
+        </pre>
+    ) : (
         <canvas
             title="Double-click pour plein écran"
             className={getClassNames(props, fullscreen)}
@@ -46,6 +58,8 @@ function getClassNames(
         classNames.push(props.className)
     }
     if (fullscreen) classNames.push("fullscreen")
+    if (props.align === "left") classNames.push("margin-left")
+    else if (props.align === "right") classNames.push("margin-right")
 
     return classNames.join(" ")
 }
@@ -58,6 +72,8 @@ function paintCanvas(
     try {
         setError("")
         const tokens = getTokensList(content)
+        console.log(content)
+        console.log("🚀 [black-board-view] tokens = ", tokens) // @FIXME: Remove this line written on 2023-02-13 at 16:08
         const scanner = new Scanner(content, tokens)
         paint(canvas, scanner)
     } catch (ex) {
@@ -73,6 +89,7 @@ function paint(canvas: HTMLCanvasElement, scanner: Scanner) {
     canvas.width = canvas.clientWidth
     canvas.height = canvas.clientHeight
     ctx.clearRect(0, 0, canvas.width, canvas.height)
+    console.log("🚀 [black-board-view] scanner = ", scanner) // @FIXME: Remove this line written on 2023-02-13 at 15:27
     const [toX, toY] = makeCoordsMapper(
         canvas.width,
         canvas.height,
@@ -125,8 +142,17 @@ function paint(canvas: HTMLCanvasElement, scanner: Scanner) {
                 break
             case "circle":
                 const [cx, cy] = shape.center
-                const radius = toX(cx + shape.radius) - toX(cx)
-                ctx.arc(toX(cx), toY(cy), radius, 0, 2 * Math.PI)
+                const radiusX = toX(cx + shape.radiusX) - toX(cx)
+                const radiusY = toX(cx + shape.radiusY) - toX(cx)
+                ctx.ellipse(
+                    toX(cx),
+                    toY(cy),
+                    radiusX,
+                    radiusY,
+                    0,
+                    shape.start,
+                    shape.end
+                )
                 break
         }
         if (shape.fill !== "none") ctx.fill()

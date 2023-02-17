@@ -147,7 +147,7 @@ const RX_BLOCK_WIDGET = /^```([a-z][a-z0-9-]*)(\{.*\})?$/gi
  * Block widgets are surrounded by triple back ticks.
  * They will be replaced by a `<span>` element with a
  * `data-widget` attribute holding ne name of the widget.
- * The span's content will be a Base64 stringfigication
+ * The span's content will be a Base64 stringyfication
  * of the params.
  */
 function parseBlockWidget(content: string): string {

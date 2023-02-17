@@ -1,5 +1,5 @@
 const TOKENS: { [key: string]: RegExp } = {
-    SPACE: /^[ \n\t,]+/,
+    SPACE: /^[ \r\n\t,]+/,
     NUMBER: /^-?[0-9]+(\.[0-9]+)?/,
     NAME: /^[A-Z][0-9]*'*/,
     STRING: /^"[^"]*"/,
@@ -9,11 +9,14 @@ const TOKENS: { [key: string]: RegExp } = {
     CLOSE_BRA: /^\]/,
     OPEN_CUR: /^\{/,
     CLOSE_CUR: /^\}/,
-    COLOR: /^#[0-9A-Za-z][0-9A-Za-z]/,
+    COLOR: /^#[ ]*[0-9A-Za-z][0-9A-Za-z]/,
     PIPE: /^\|/,
     TILDA: /^~/,
+    DIVIDE: /^\//,
     AT: /^@/,
+    DEG: /^°/,
     PERCENT: /^%/,
+    SEMICOLON: /^;/,
     DOLLAR: /^\$/,
 }
 
@@ -31,9 +34,12 @@ export type TokenName =
     | "COLOR"
     | "PIPE"
     | "TILDA"
+    | "DIVIDE"
     | "AT"
+    | "DEG"
     | "PERCENT"
     | "DOLLAR"
+    | "SEMICOLON"
     | "END"
 
 export interface Token {
