@@ -7,13 +7,13 @@ Les fichiers des articles sont stoqués dans le répertoire
 `public/articles/<lang>/<topic>`. Où `<lang>` est la langue dans laquelle
 l'article est écrit.
 
-Le paramètre `<topic>` est déduit du hash de l'URL, comme dans les exemples suivants :
+Le paramètre `<topic>` est déduit du hash de l'URL, comme dans les exemples suivants (notez bien la différence entre les hash avec un "/" final et les autres) :
 
 | Hash | Chemin |
 | ---- | ------ |
-| `#articles` | `articles/articles.md` |
-| `#foo/bar` | `foo/bar/bar.md` |
-| `#foo/bar/joe` | `foo/bar/joe/joe.md` |
+| `#articles/` | `articles/articles.md` |
+| `#foo/bar/` | `foo/bar/bar.md` |
+| `#foo/bar/joe` | `foo/bar/joe.md` |
 
 ## Images
 
