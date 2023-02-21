@@ -46,18 +46,21 @@ async function loadArticleContentFromNetwork(
 
 /**
  * @returns `null` if the topic has not been found.
- * @param topic If `topic` has no "slash", we will look for the url:
- * `articles/<lang>/<topic>/<topic>.md`.
+ * @param topic If `topic` has a trailing "slash", we will look for the url:
+ * `articles/<lang>/<root>/<tail>/<tail>.md`.
  * @param lang
  */
 async function tryToLoad(
     topic: string,
     lang: string
 ): Promise<ArticleContent | undefined> {
-    const parts = topic.split("/")
-    const tail = parts[parts.length - 1]
+    const parts = expandTopic(topic)
+    const tail = parts.length > 0 ? parts.pop() ?? "@" : "@"
     const root = parts.join("/")
-    const url = `articles/${lang}/${root}/${tail}.md`
+    const url =
+        root.length > 0
+            ? `articles/${lang}/${root}/${tail}.md`
+            : `articles/${lang}/${tail}.md`
     try {
         const content = await loadTextFromURL(url)
         if (!content) return
@@ -210,4 +213,24 @@ function parseAtribs(text?: string): Record<string, unknown> {
         console.error(ex)
         return {}
     }
+}
+
+/**
+ * If `path` ends with `/`, we add the last part of the path.
+ * @returns Examples:
+ * ```
+ * expandTopic("hello/world") === ["hello", "world"]
+ * expandTopic("hello/world/") === ["hello", "world", "world"]
+ * ```
+ */
+function expandTopic(path: string): string[] {
+    const parts = path
+        .split("/")
+        .map((part) => part.trim())
+        .filter((part) => part.length > 0)
+    const last = parts[parts.length - 1] ?? ""
+    if (path.trim().endsWith("/")) {
+        parts.push(last)
+    }
+    return parts
 }

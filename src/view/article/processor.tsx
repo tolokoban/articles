@@ -19,8 +19,11 @@ export function process(
     article: ArticleContent,
     widgets: { [key: string]: Promise<{ default: WidgetMaker }> }
 ) {
+    processLocalLinks(div, article)
     processLocalImages(div, article)
-    const widgetMaker = widgets[article.topic]
+    const widgetMaker: Promise<{ default: WidgetMaker }> | undefined =
+        getWidget(widgets, article)
+    console.log("🚀 [processor] widgetMaker = ", widgetMaker) // @FIXME: Remove this line written on 2023-02-20 at 17:58
     processWidgets(div, article, widgetMaker)
 }
 
@@ -109,6 +112,24 @@ function processWidgets(
     })
 }
 
+function processLocalLinks(div: HTMLDivElement, article: ArticleContent) {
+    const links = div.querySelectorAll("a[href]")
+    for (const link of links) {
+        const href = link.getAttribute("href")
+        if (typeof href !== "string") continue
+
+        if (!href.endsWith(".md")) continue
+
+        link.setAttribute(
+            "href",
+            `#${join(
+                article.base.split("/").slice(2).join("/"),
+                href.substring(0, href.length - 3)
+            )}`
+        )
+    }
+}
+
 function processLocalImages(div: HTMLDivElement, article: ArticleContent) {
     const images = div.querySelectorAll("img")
     for (const image of images) {
@@ -144,5 +165,43 @@ function parseJSON5(text: string): unknown {
         console.error("Unable to parse JSON5:", text)
         console.error(ex)
         return null
+    }
+}
+
+function join(base: string, path: string) {
+    const parts = base
+        .split("/")
+        .filter(
+            (item) => typeof item === "string" && item && item.trim().length > 0
+        )
+    for (const item of path.split("/")) {
+        if (typeof item !== "string" || item.trim().length === 0) continue
+
+        if (item === "..") parts.pop()
+        else if (item !== ".") {
+            parts.push(item)
+        }
+    }
+    return parts.join("/")
+}
+
+function getWidget(
+    widgets: { [key: string]: Promise<{ default: WidgetMaker }> },
+    article: ArticleContent
+): Promise<{ default: WidgetMaker }> | undefined {
+    const base = widgets[article.base]
+    if (base) return base
+
+    const topic = widgets[article.topic]
+    if (topic) return topic
+
+    const items = article.base.split("/")
+    while (true) {
+        const item = items.pop()
+        if (!isString(item)) break
+        if (!item) continue
+
+        const single = widgets[item]
+        if (single) return single
     }
 }

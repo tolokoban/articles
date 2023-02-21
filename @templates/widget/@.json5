@@ -1,0 +1,7 @@
+{
+    name: "Widget",
+    params: {
+        name: "Nom du widget",
+    },
+    open: "{{name}}",
+}

@@ -16,6 +16,7 @@ function start() {
                     g: import("./widget/g"),
                     "balanced-targets": import("./widget/balanced-targets"),
                     "compose-keys": import("./widget/compose-keys"),
+                    "kung-fu-master": import("./widget/games/KungFuMaster"),
                 }}
             />
         </React.StrictMode>
